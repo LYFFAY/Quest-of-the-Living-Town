@@ -13,6 +13,12 @@ This project explores how gamified travel can transform heritage tourism from pa
 - **Young visitors | 年轻游客：** 希望旅行过程有趣、有参与感，同时愿意获得文化体验。
 - **Study-tour groups | 研学旅行团体：** 带着学习目标参观，需要在有限时间内理解并记住文化知识。
 
+## Design Context | 设计场景
+
+The initial design will focus on heritage attractions within the ancient city of Xi'an. Representative historical buildings, cultural relics, and nearby cultural locations will be connected through a story-driven route, allowing visitors to explore Xi'an's history through role-playing, puzzles, on-site tasks, and cultural interpretation.
+
+项目初步计划以西安古城中的文化遗产景点展开设计。系统将选取具有代表性的历史建筑、文物及周边文化地点，通过剧情路线将它们连接起来，让游客在角色扮演、解谜和实地任务中探索西安的历史文化。
+
 ## Expected System | 计划开发的系统
 
 The project will produce a mobile heritage exploration prototype. Each visit follows a story-based route through real heritage sites. Visitors interact with personified artifacts or buildings, take on roles, solve historical puzzles, complete on-site tasks, unlock cultural interpretation, and collect digital memories and 3D models.
@@ -93,10 +99,3 @@ The main quest ends after the visitor completes all designated heritage tasks. O
 
 - [`FYP PPT1.pptx`](materials/FYP%20PPT1.pptx): presentation prepared for the first FYP group meeting | 第一次FYP组会演示文稿
 - [`FYP文献参考.xlsx`](materials/FYP文献参考.xlsx): literature notes, links, analysis, and selected excerpts | 文献链接、分析与原文摘录
-
-## Project Status | 项目状态
-
-Early-stage FYP research and prototype planning. The scope, heritage site, interaction flow, implementation priorities, and evaluation method will be refined through supervisor feedback and user research.
-
-本项目目前处于毕业项目的前期研究和原型规划阶段。后续将根据导师意见和用户研究，进一步确定具体景点、交互流程、开发优先级和评估方法。
-
