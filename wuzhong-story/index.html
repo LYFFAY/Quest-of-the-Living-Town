@@ -1,0 +1,26 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fcfcf9"><title>画中逢君</title><link rel="icon" href="data:,"><link rel="stylesheet" href="./story-v4-1.css"></head><body data-screen="cover">
+<div id="world" aria-hidden="true"><div class="landscape"></div><div class="ink-reflection"></div><div class="vermilion-leaves"><i></i><i></i><i></i></div><canvas id="ripples"></canvas></div><main id="app">
+<section id="cover" class="screen cover"><div class="cover-copy"><h1 id="play-title">画中逢君</h1><span class="cover-seal" aria-hidden="true">逢<br>君</span><button id="start-story"><span>点击开始故事</span></button></div></section>
+<section id="boat-screen" class="screen" hidden aria-label="舟行转场"><div class="water-horizon"></div><canvas id="boat-water" aria-hidden="true"></canvas><div id="boat" class="boat"><img class="boat-image" src="./assets/boat.webp" alt="一叶小舟沿水路由远及近"><div class="boat-reflection" aria-hidden="true"><img src="./assets/boat.webp" alt=""></div></div></section>
+<section id="chapter-screen" class="screen" hidden><div id="chapter-card" class="chapter-card"><span id="chapter-number">序章</span><span id="chapter-name">相遇</span></div></section>
+<section id="novel" class="screen novel" hidden><div class="character-stage"><img id="character" class="character" src="./assets/elder.webp" alt="老者的立绘"></div><div id="memory-wash" class="memory-wash" hidden><div id="memory-painting" class="portrait-composition" aria-label="记忆中的画卷"></div></div><div id="choices" class="choices" hidden aria-label="选择文物"></div><section id="dialogue" class="dialogue" aria-label="人物对话"><span id="speaker">老者</span><p id="dialogue-text" aria-live="polite"></p><button id="advance" aria-label="继续对话"><span aria-hidden="true">◇</span></button></section></section>
+<section id="play-screen" class="screen play-screen" hidden><div class="play-bar"><button id="leave-ar" class="plain-button">‹ 返回</button></div><iframe id="activity" title="文物AR扫描与互动" allow="camera; fullscreen; accelerometer; gyroscope" referrerpolicy="same-origin" aria-busy="true"></iframe><p id="frame-status" role="status" hidden></p></section>
+<section id="scroll-screen" class="screen scroll-screen" hidden><div class="painted-scroll"><div class="scroll-endcap"></div><div id="portrait-scroll" class="portrait-composition" aria-label="五人画卷"></div><div class="scroll-endcap"></div></div><button id="scroll-continue" class="plain-button" aria-label="收起画卷，继续故事">→</button></section>
+<section id="ending" class="screen ending" hidden><h2>全剧终</h2><p>人有归期，文脉无尽。<br>愿每一次凝望，都让历史被记得。</p><button id="restart-story" class="plain-button">再赴此约 ↻</button></section></main>
+<button id="language" class="language-button" type="button" data-language lang="en">English</button>
+<nav id="story-tools" class="story-tools" aria-label="画卷与收藏"><button id="open-scroll" aria-label="查看画卷">画卷</button><button id="open-collection" aria-label="查看收藏">收藏</button></nav>
+<dialog id="painting-dialog" aria-label="画卷"><button class="language-button" type="button" data-language lang="en">English</button><button id="close-painting" class="close-button" aria-label="关闭画卷">×</button><div class="painted-scroll"><div class="scroll-endcap"></div><div id="gallery-painting" class="portrait-composition" aria-label="五人画卷"></div><div class="scroll-endcap"></div></div></dialog>
+<dialog id="collection-dialog" aria-label="文物收藏"><button class="language-button" type="button" data-language lang="en">English</button><button id="close-collection" class="close-button" aria-label="关闭收藏">×</button><div id="collection-cards" class="collection-cards"></div></dialog>
+<dialog id="artifact-dialog" aria-labelledby="artifact-title">
+  <div class="artifact-panel">
+    <header class="artifact-header">
+      <button class="language-button" type="button" data-language lang="en">English</button>
+      <button id="close-artifact" class="close-button" type="button" aria-label="关闭文物介绍">×</button>
+      <h2 id="artifact-title"></h2>
+      <p id="artifact-meta"></p>
+    </header>
+    <div id="artifact-description" class="artifact-description" tabindex="0"></div>
+    <footer class="artifact-actions"><button id="speak-artifact" type="button" disabled>与她对话</button></footer>
+  </div>
+</dialog>
+<script type="module" src="./story-v4-1.js"></script></body></html>

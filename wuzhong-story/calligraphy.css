@@ -1,0 +1,1 @@
+@font-face{font-family:WuBrush;src:url('./assets/brush.woff') format('woff');font-display:swap}h1,.artifact-name{font-family:WuBrush,'Kaiti SC',KaiTi,serif!important;font-weight:400!important;letter-spacing:.07em!important;font-size:clamp(25px,3.6vw,38px)!important;line-height:1.6!important}@media(max-width:600px){h1,.artifact-name{font-size:26px!important}}
