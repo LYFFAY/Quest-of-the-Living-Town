@@ -25,6 +25,23 @@ function updateMarkers(){if(!model)return;for(const p of pieces){const b=markers
  b.hidden=!visible;if(visible){b.style.left=(screen.x*.5+.5)*stage.clientWidth+'px';b.style.top=(-screen.y*.5+.5)*stage.clientHeight+'px';}}
 }
 function select(id){if(busy||ending||repaired.has(id))return;const next=selected===id?null:id;clearSelection();selected=next;if(next)document.getElementById('choice-'+next).setAttribute('aria-pressed','true');}
+function bindTap(button, activate) {
+ let pressed;
+ button.addEventListener('touchstart', event => {
+  pressed = event.touches.length === 1 ? event.changedTouches[0] : undefined;
+ }, {passive:true});
+ button.addEventListener('touchcancel', () => { pressed = undefined; });
+ button.addEventListener('touchend', event => {
+  const start = pressed;
+  pressed = undefined;
+  const end = Array.from(event.changedTouches).find(touch => touch.identifier === start?.identifier);
+  if (!end || event.touches.length || !event.cancelable || button.disabled || button.hidden) return;
+  if (Math.hypot(end.clientX-start.clientX,end.clientY-start.clientY) > 14) return;
+  event.preventDefault();
+  activate();
+ }, {passive:false});
+ button.addEventListener('click', activate);
+}
 async function match(p,index){if(busy||ending||selected===null||repaired.has(p.id))return;if(selected!==p.id){clearSelection();return;}busy=true;clearSelection();const next=state|(1<<index),normal=new THREE.Vector3(...p.normal).normalize();
  bloom.group.position.set(...p.pos).addScaledVector(normal,.025);bloom.group.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),normal);bloom.group.visible=true;bloomStart=performance.now();bloomEnd=0;debug.phase='blooming';updateMarkers();
  try{const [texture]=await Promise.all([getTexture(next),new Promise(r=>setTimeout(r,1000))]);for(const m of materials){m.map=texture;m.needsUpdate=true;}state=next;debug.state=state;repaired.add(p.id);document.getElementById('choice-'+p.id).disabled=true;debug.phase='interaction';bloomEnd=performance.now();if(state===7)startGarden();}
@@ -39,7 +56,7 @@ function animate(now){frameId=requestAnimationFrame(animate);controls.update();i
 }
 async function init(){try{const [gltf,data]=await Promise.all([new GLTFLoader().loadAsync('./interaction-plate.glb'),fetch('./pieces.json').then(r=>{if(!r.ok)throw Error('Missing anchors');return r.json();})]);model=gltf.scene;pieces=data;scene.add(model);model.updateWorldMatrix(true,true);model.traverse(o=>{if(o.isMesh){o.layers.set(1);meshes.push(o);for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.push(m);m.metalness=0;m.roughness=.8297061324119568;m.envMap=plateEnvironment.texture;m.envMapIntensity=1.05;if('transmission' in m)m.transmission=0;m.needsUpdate=true;}}});
  camera.position.set(0,.12,Math.max(3.7,1.17/(Math.tan(camera.fov*Math.PI/360)*Math.min(1,camera.aspect))));controls.maxDistance=Math.max(8,camera.position.length()*1.6);controls.update();
- for(let i=0;i<pieces.length;i++){const p=pieces[i],b=document.createElement('button');b.className='dot';b.id='hotspot-'+p.id;b.setAttribute('aria-label','将选中的花纹放回此处');b.hidden=true;b.onclick=()=>match(p,i);document.getElementById('markers').append(b);markers.set(p.id,b);document.getElementById('choice-'+p.id).onclick=()=>select(p.id);}
+ for(let i=0;i<pieces.length;i++){const p=pieces[i],b=document.createElement('button');b.type='button';b.className='dot';b.id='hotspot-'+p.id;b.setAttribute('aria-label','将选中的花纹放回此处');b.hidden=true;bindTap(b,()=>match(p,i));document.getElementById('markers').append(b);markers.set(p.id,b);bindTap(document.getElementById('choice-'+p.id),()=>select(p.id));}
  loading.hidden=true;debug.ready=true;debug.model=model;debug.pieces=pieces;debug.meshes=meshes;debug.materials=materials;debug.updateMarkers=updateMarkers;debug.textureCache=textureCache;debug.phase='interaction';animate(performance.now());preload();
  }catch(e){console.error(e);loading.textContent='加载失败，请刷新重试 / Please reload to try again.';debug.error=String(e);}}
 const video=document.getElementById('camera');function stopCamera(){stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;stage.classList.remove('camera-on');}

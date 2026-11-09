@@ -37,6 +37,7 @@ const nozzle = new THREE.Vector3(), velocity = new THREE.Vector3();
 const tipOffset = new THREE.Vector3(), project = new THREE.Vector3();
 const potBounds = new THREE.Box3();
 const dockFrom = new THREE.Vector3(), dockTo = new THREE.Vector3();
+const nativeTouch = 'ontouchstart' in window;
 let cup, phase = 'loading', placement, grip, stream, pendingCamera;
 let fill = 0, tilt = 0, wantedTilt = 0, flow = 0, spillAmount = 0, phaseTime = 0;
 let previousTime, frameId, active = true;
@@ -70,38 +71,75 @@ function screenPoint(world) {
   return {x:rect.left+(project.x+1)*rect.width/2,y:rect.top+(1-project.y)*rect.height/2};
 }
 
-function overMouth(x,y) {
+function overMouth(x,y,touch) {
   const rect = canvas.getBoundingClientRect();
   if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return false;
   const center = screenPoint(mouth);
   const rim = screenPoint(mouth.clone().add(new THREE.Vector3(.125,0,0)));
-  const radius = clamp(Math.abs(rim.x-center.x)+11,24,48);
+  const rimWidth = Math.abs(rim.x-center.x);
+  const radius = touch ? clamp(rimWidth+24,40,63) : clamp(rimWidth+11,24,48);
   return Math.hypot(center.x-x,center.y-y) <= radius;
 }
 
-function moveGhost(event) {
-  ghost.style.left = event.clientX+'px';
-  ghost.style.top = event.clientY+'px';
+function moveGhost(point) {
+  ghost.style.left = point.clientX+'px';
+  ghost.style.top = point.clientY+'px';
 }
 
-tool.addEventListener('pointerdown', event => {
-  if (phase !== 'place' || placement || event.button !== 0) return;
-  event.preventDefault();
-  placement = {id:event.pointerId,x:event.clientX,y:event.clientY,moved:false};
-  tool.setPointerCapture(event.pointerId);
+// Native touch events keep the original target for the whole gesture, including
+// when a finger leaves the tool and moves across the canvas inside the story.
+function bindTouchDrag(target,start,move,finish) {
+  let fingerId;
+  function end(point,released) {
+    fingerId = undefined;
+    finish(point,released);
+  }
+  target.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) {
+      if (fingerId !== undefined) end(null,false);
+      return;
+    }
+    const finger = event.changedTouches[0];
+    if (fingerId !== undefined || !start(finger)) return;
+    fingerId = finger.identifier;
+    if (event.cancelable) event.preventDefault();
+  }, {passive:false});
+  target.addEventListener('touchmove', event => {
+    if (fingerId === undefined) return;
+    if (event.touches.length !== 1) { end(null,false); return; }
+    const finger = Array.from(event.changedTouches).find(point => point.identifier === fingerId);
+    if (!finger) return;
+    if (event.cancelable) event.preventDefault();
+    move(finger);
+  }, {passive:false});
+  for (const type of ['touchend','touchcancel']) {
+    target.addEventListener(type, event => {
+      if (fingerId === undefined) return;
+      const finger = Array.from(event.changedTouches).find(point => point.identifier === fingerId);
+      if (!finger) return;
+      if (event.cancelable) event.preventDefault();
+      end(finger,type === 'touchend');
+    }, {passive:false});
+  }
+}
+
+function startPlacement(point,id) {
+  if (phase !== 'place' || placement) return false;
+  placement = {id,x:point.clientX,y:point.clientY,moved:false};
   tool.classList.add('dragging');
   ghost.hidden = false;
-  moveGhost(event);
-});
-tool.addEventListener('pointermove', event => {
-  if (placement?.id !== event.pointerId) return;
-  placement.moved ||= Math.hypot(event.clientX-placement.x,event.clientY-placement.y)>5;
-  moveGhost(event);
-});
+  moveGhost(point);
+  return true;
+}
+function updatePlacement(point) {
+  if (!placement) return;
+  placement.moved ||= Math.hypot(point.clientX-placement.x,point.clientY-placement.y)>5;
+  moveGhost(point);
+}
 
-function finishPlacement(event, released) {
-  if (placement?.id !== event.pointerId) return;
-  const dock = released && placement.moved && overMouth(event.clientX,event.clientY);
+function finishPlacement(point,released,touch) {
+  if (!placement) return;
+  const dock = released && placement.moved && overMouth(point.clientX,point.clientY,touch);
   placement = undefined;
   ghost.hidden = true;
   tool.classList.remove('dragging');
@@ -117,11 +155,23 @@ function finishPlacement(event, released) {
   guide.hidden = false;
   changePhase('pour');
 }
-tool.addEventListener('pointerup', event => finishPlacement(event,true));
-tool.addEventListener('pointercancel', event => finishPlacement(event,false));
-tool.addEventListener('lostpointercapture', event => finishPlacement(event,false));
+bindTouchDrag(tool,startPlacement,updatePlacement,(point,released) => finishPlacement(point,released,true));
+tool.addEventListener('pointerdown', event => {
+  if ((nativeTouch && event.pointerType === 'touch') || event.button !== 0) return;
+  if (!startPlacement(event,event.pointerId)) return;
+  event.preventDefault();
+  tool.setPointerCapture(event.pointerId);
+});
+tool.addEventListener('pointermove', event => {
+  if (placement?.id === event.pointerId) updatePlacement(event);
+});
+for (const type of ['pointerup','pointercancel','lostpointercapture']) {
+  tool.addEventListener(type, event => {
+    if (placement?.id === event.pointerId) finishPlacement(event,type === 'pointerup',event.pointerType === 'touch');
+  });
+}
 
-function nearPot(x,y) {
+function nearPot(x,y,padding=18) {
   potBounds.setFromObject(pot.group);
   let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
   for (const px of [potBounds.min.x,potBounds.max.x]) {
@@ -133,24 +183,39 @@ function nearPot(x,y) {
       }
     }
   }
-  return x >= minX-18 && x <= maxX+18 && y >= minY-18 && y <= maxY+18;
+  return x >= minX-padding && x <= maxX+padding && y >= minY-padding && y <= maxY+padding;
 }
+function startGrip(point,id,touch=false) {
+  if (phase !== 'pour' || grip || !nearPot(point.clientX,point.clientY,touch?28:18)) return false;
+  liftingView = false;
+  controls.enableRotate = false;
+  grip = {id,y:point.clientY,tilt};
+  return true;
+}
+function updateGrip(point) {
+  if (phase !== 'pour' || !grip) return;
+  wantedTilt = clamp(grip.tilt+(grip.y-point.clientY)*.0108,-.23,1.24);
+}
+bindTouchDrag(canvas,point=>startGrip(point,undefined,true),updateGrip,releaseGrip);
 canvas.addEventListener('pointerdown', event => {
   if (event.pointerType === 'touch' && grip && event.pointerId !== grip.id) {
     releaseGrip();
     return;
   }
-  if (phase !== 'pour' || grip || !event.isPrimary || event.button !== 0 || !nearPot(event.clientX,event.clientY)) return;
+  if (!event.isPrimary || event.button !== 0) return;
+  if (nativeTouch && event.pointerType === 'touch') {
+    // OrbitControls still tracks the finger so a second finger can start pinch zoom.
+    if (phase === 'pour' && nearPot(event.clientX,event.clientY,28)) controls.enableRotate = false;
+    return;
+  }
+  if (!startGrip(event,event.pointerId)) return;
   event.preventDefault();
-  liftingView = false;
-  controls.enableRotate = false;
-  grip = {id:event.pointerId,y:event.clientY,tilt};
   canvas.setPointerCapture(event.pointerId);
 }, {capture:true});
 canvas.addEventListener('pointermove', event => {
   if (phase !== 'pour') return;
   if (grip?.id === event.pointerId) {
-    wantedTilt = clamp(grip.tilt+(grip.y-event.clientY)*.0108,-.23,1.24);
+    updateGrip(event);
   } else if (event.pointerType === 'mouse' && !event.buttons) {
     canvas.style.cursor = nearPot(event.clientX,event.clientY) ? 'ns-resize' : 'grab';
   }
@@ -163,6 +228,7 @@ function releaseGrip() {
 for (const name of ['pointerup','pointercancel','lostpointercapture']) {
   canvas.addEventListener(name, event => {
     if (grip?.id === event.pointerId) releaseGrip();
+    else if (!grip && event.pointerType === 'touch') controls.enableRotate = true;
   });
 }
 
