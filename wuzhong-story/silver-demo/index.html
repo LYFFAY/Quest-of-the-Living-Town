@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f2e9">
+  <title>元至正乙酉朱碧山造银槎杯</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./silver-v2.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/renderers/CSS3DRenderer.js":"../vendor/CSS3DRenderer.js"}}</script>
+</head>
+<body>
+  <main class="scan-page">
+    <header><h1>元至正乙酉朱碧山造银槎杯</h1></header>
+    <section id="ar-stage" class="stage" aria-label="AR扫描窗口">
+      <div id="scan-guide" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p id="tracking-status" class="stage-label" role="status">正在开启摄像头…</p>
+    </section>
+    <div class="scan-actions">
+      <button id="begin" class="primary" disabled>开始互动</button>
+      <p id="error" role="alert" hidden></p>
+      <button id="retry" class="secondary" hidden>重新开启摄像头</button>
+    </div>
+  </main>
+  <script type="module" src="./scan.js"></script>
+</body>
+</html>

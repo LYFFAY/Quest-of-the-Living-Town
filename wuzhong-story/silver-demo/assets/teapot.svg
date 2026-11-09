@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112">
+  <defs>
+    <radialGradient id="clay" cx=".35" cy=".2" r=".9"><stop stop-color="#9a7d64"/><stop offset=".57" stop-color="#6c5343"/><stop offset="1" stop-color="#3f302b"/></radialGradient>
+    <linearGradient id="edge" x2=".6" y2="1"><stop stop-color="#a48c73"/><stop offset="1" stop-color="#4c3a30"/></linearGradient>
+    <pattern id="grain" width="6" height="5" patternUnits="userSpaceOnUse"><path d="M1 1h.7M4 3h.8" stroke="#d0a988" opacity=".32" stroke-width=".55"/></pattern>
+  </defs>
+  <path d="M113 45 C144 26 155 43 149 64 C145 79 130 85 115 82" fill="none" stroke="#49372f" stroke-width="10"/>
+  <path d="M113 44 C143 28 152 43 146 64 C141 78 128 83 115 80" fill="none" stroke="#806653" stroke-width="4"/>
+  <path d="M52 60 C35 61 29 49 20 36 Q12 32 6 36 C17 50 16 77 49 83Z" fill="url(#edge)" stroke="#594336" stroke-width="1.4"/>
+  <path d="M49 43 Q59 30 80 31 Q109 31 119 50 C135 76 117 98 85 101 C53 103 32 92 36 69 Q38 54 49 43Z" fill="url(#clay)" stroke="#574238" stroke-width="1.4"/>
+  <path d="M49 43 Q59 30 80 31 Q109 31 119 50 C135 76 117 98 85 101 C53 103 32 92 36 69 Q38 54 49 43Z" fill="url(#grain)"/>
+  <path d="M48 42 Q60 26 82 27 Q104 27 115 42 Q88 53 48 42Z" fill="url(#edge)" stroke="#574238" stroke-width="1.4"/>
+  <ellipse cx="81" cy="25" rx="10" ry="6" fill="url(#clay)" stroke="#574238"/>
+  <path d="M53 48 Q79 56 111 47M47 83 Q81 97 115 80" fill="none" stroke="#c5a07c" opacity=".46"/>
+  <ellipse cx="13" cy="35" rx="7" ry="2.6" fill="#2f2823"/>
+</svg>

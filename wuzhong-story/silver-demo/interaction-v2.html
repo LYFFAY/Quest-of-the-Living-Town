@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f2e9">
+  <title>银槎杯 · 一盏清水</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./silver-v2.css">
+  <script type="importmap">{"imports":{"three":"../vendor/three.module.js"}}</script>
+</head>
+<body>
+  <main>
+    <header><h1>元至正乙酉朱碧山造银槎杯</h1></header>
+    <section id="stage" class="stage" aria-label="银槎杯与茶壶三维互动">
+      <video id="camera" autoplay playsinline muted aria-hidden="true"></video>
+      <canvas id="scene"></canvas>
+      <p id="loading" class="stage-label" role="status">正在载入银槎杯…</p>
+      <div id="pour-guide" aria-hidden="true" hidden>
+        <svg viewBox="0 0 50 90"><path pathLength="100" d="M12 77 C42 60 47 37 25 11 L38 16 L25 11 L25 25"/></svg>
+      </div>
+      <p id="hint" class="stage-label" hidden>滑动查看不同角度，手机双指缩放，电脑滚轮缩放</p>
+      <div id="success" role="status" hidden><span>倒水完成</span></div>
+    </section>
+    <section class="task"><h2>请将壶中的水正确倒入杯中</h2></section>
+    <section class="tray" aria-label="茶壶托盘">
+      <button id="teapot-tool" type="button" aria-label="按住并拖动茶壶" disabled>
+        <img src="./assets/teapot.svg" alt="茶壶" draggable="false">
+      </button>
+    </section>
+  </main>
+  <img id="drag-ghost" src="./assets/teapot.svg" alt="" aria-hidden="true" draggable="false" hidden>
+  <script type="module" src="./interaction-v2.js"></script>
+</body>
+</html>
